@@ -25,7 +25,34 @@ Install dependencies:
 bundle install
 ```
 
-Run tests:
+## Example Output
+
+```
+❯ bundle exec bin/laerad scan /Users/giles/code/laerad/test/fixtures/unused_variable.rb
+Single-use variables:
+  /Users/giles/code/laerad/test/fixtures/unused_variable.rb:2  x (1 use)
+
+Single-use methods:
+  /Users/giles/code/laerad/test/fixtures/unused_variable.rb:1  foo (1 use)
+
+❯ bundle exec bin/laerad scan /Users/giles/code/laerad/test/fixtures/
+Single-use variables:
+  /Users/giles/code/laerad/test/fixtures/multi_use_variable.rb:3  y (1 use)
+  /Users/giles/code/laerad/test/fixtures/nested_scopes.rb:4  x (1 use)
+  /Users/giles/code/laerad/test/fixtures/nested_scopes.rb:2  x (1 use)
+  /Users/giles/code/laerad/test/fixtures/unused_variable.rb:2  x (1 use)
+
+Single-use methods:
+  /Users/giles/code/laerad/test/fixtures/multi_use_method.rb:  times (1 use)
+  /Users/giles/code/laerad/test/fixtures/multi_use_variable.rb:1  foo (1 use)
+  /Users/giles/code/laerad/test/fixtures/nested_scopes.rb:1  outer (1 use)
+  /Users/giles/code/laerad/test/fixtures/nested_scopes.rb:  times (1 use)
+  /Users/giles/code/laerad/test/fixtures/simple_method.rb:5  top (1 use)
+  /Users/giles/code/laerad/test/fixtures/unused_method.rb:1  helper (1 use)
+  /Users/giles/code/laerad/test/fixtures/unused_variable.rb:1  foo (1 use)
+```
+
+## Tests
 
 ```bash
 bundle exec rake test
