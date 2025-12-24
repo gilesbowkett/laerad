@@ -32,6 +32,10 @@ module Laerad
       @scope_stack.last
     end
 
+    def file_scope
+      @scope_stack.first
+    end
+
     def push_scope
       @scope_stack.push(Scope.new)
     end
@@ -94,7 +98,7 @@ module Laerad
       when SyntaxTree::DefNode
         name = node.name.value
         line = node.location.start_line
-        current_scope.register_method_def(name, line)
+        file_scope.register_method_def(name, line)
 
         push_scope
         visit_params(node.params)
@@ -128,26 +132,26 @@ module Laerad
         method_name = extract_method_name(node)
         if method_name
           check_dynamic_method(method_name)
-          current_scope.register_method_call(method_name)
+          file_scope.register_method_call(method_name)
         end
         visit(node.arguments) if node.arguments
 
       when SyntaxTree::VCall
         method_name = node.value.value
         check_dynamic_method(method_name)
-        current_scope.register_method_call(method_name)
+        file_scope.register_method_call(method_name)
 
       when SyntaxTree::Command
         method_name = node.message.value
         check_dynamic_method(method_name)
-        current_scope.register_method_call(method_name)
+        file_scope.register_method_call(method_name)
         visit(node.arguments)
 
       when SyntaxTree::CommandCall
         visit(node.receiver) if node.receiver
         method_name = node.message.value
         check_dynamic_method(method_name)
-        current_scope.register_method_call(method_name)
+        file_scope.register_method_call(method_name)
         visit(node.arguments) if node.arguments
 
       when SyntaxTree::BlockNode
