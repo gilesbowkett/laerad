@@ -75,7 +75,7 @@ class TestFileAnalyzer < Minitest::Test
 
     refute result.variable_violations.any? { |v| v[:name] == "x" }
   ensure
-    file.unlink if file
+    file&.unlink
   end
 
   def test_rescue_binding
@@ -88,6 +88,6 @@ class TestFileAnalyzer < Minitest::Test
 
     refute result.variable_violations.any? { |v| v[:name] == "e" }
   ensure
-    file.unlink if file
+    file&.unlink
   end
 end

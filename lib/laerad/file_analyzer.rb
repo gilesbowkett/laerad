@@ -23,7 +23,7 @@ module Laerad
       visit(ast)
       finalize_scope(@scope_stack.last)
       @result
-    rescue SyntaxTree::Parser::ParseError => e
+    rescue SyntaxTree::Parser::ParseError
       @result
     end
 
@@ -328,10 +328,16 @@ module Laerad
       case params
       when SyntaxTree::Params
         params.requireds.each { |p| register_param(p) }
-        params.optionals.each { |opt| register_param(opt[0]); visit(opt[1]) }
+        params.optionals.each do |opt|
+          register_param(opt[0])
+          visit(opt[1])
+        end
         register_param(params.rest) if params.rest && params.rest != :nil
         params.posts.each { |p| register_param(p) }
-        params.keywords.each { |kw| register_param(kw[0]); visit(kw[1]) if kw[1] }
+        params.keywords.each do |kw|
+          register_param(kw[0])
+          visit(kw[1]) if kw[1]
+        end
         register_param(params.keyword_rest) if params.keyword_rest
         register_param(params.block) if params.block
       when SyntaxTree::Paren
@@ -372,8 +378,6 @@ module Laerad
         param.name&.value
       when SyntaxTree::ArgsForward
         nil
-      else
-        nil
       end
 
       if name
@@ -391,8 +395,6 @@ module Laerad
       case node.value
       when SyntaxTree::Ident
         node.value.value
-      else
-        nil
       end
     end
 
@@ -404,8 +406,6 @@ module Laerad
         node.message.value
       when Symbol
         node.message.to_s
-      else
-        nil
       end
     end
 

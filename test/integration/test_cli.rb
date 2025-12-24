@@ -19,14 +19,14 @@ class TestCLI < Minitest::Test
   end
 
   def test_scan_file_with_no_violations
-    stdout, stderr, status = run_cli("scan", fixture_path("simple_variable.rb"))
+    stdout, _stderr, status = run_cli("scan", fixture_path("simple_variable.rb"))
 
     assert_equal 0, status.exitstatus
     assert_includes stdout, "No violations found"
   end
 
   def test_scan_file_with_violations
-    stdout, stderr, status = run_cli("scan", fixture_path("unused_variable.rb"))
+    stdout, _stderr, status = run_cli("scan", fixture_path("unused_variable.rb"))
 
     assert_equal 1, status.exitstatus
     assert_includes stdout, "Single-use variables:"
@@ -34,14 +34,14 @@ class TestCLI < Minitest::Test
   end
 
   def test_scan_directory
-    stdout, stderr, status = run_cli("scan", File.expand_path("../fixtures", __dir__))
+    _stdout, _stderr, status = run_cli("scan", File.expand_path("../fixtures", __dir__))
 
     # The fixtures directory has files with violations
     assert_equal 1, status.exitstatus
   end
 
   def test_version_command
-    stdout, stderr, status = run_cli("version")
+    stdout, _stderr, status = run_cli("version")
 
     assert_equal 0, status.exitstatus
     assert_includes stdout, "laerad"
