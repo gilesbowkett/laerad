@@ -2,13 +2,14 @@
 
 module Laerad
   class Runner
-    def initialize(paths)
+    def initialize(paths, options = {})
       @paths = Array(paths)
+      @options = options
     end
 
     def run
       files = expand_paths
-      results = files.map { |file| FileAnalyzer.analyze(file) }
+      results = files.map { |file| FileAnalyzer.analyze(file, @options) }
       Result.merge(*results)
     end
 

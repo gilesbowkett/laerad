@@ -9,8 +9,10 @@ module Laerad
     end
 
     desc "scan PATH", "Scan Ruby files for single-use variables and methods"
+    method_option :methods_only, type: :boolean, aliases: "-m", desc: "Only check for single-use methods"
+    method_option :variables_only, type: :boolean, aliases: "-v", desc: "Only check for single-use variables"
     def scan(path = ".")
-      result = Runner.new(path).run
+      result = Runner.new(path, options).run
 
       if result.violations?
         puts result.format_output

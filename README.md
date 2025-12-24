@@ -11,6 +11,22 @@ bundle exec bin/laerad scan path/to/file.rb
 bundle exec bin/laerad scan path/to/directory
 ```
 
+### Options
+
+Only check for single-use methods:
+
+```bash
+bundle exec bin/laerad scan --methods-only path/to/file.rb
+bundle exec bin/laerad scan -m path/to/file.rb
+```
+
+Only check for single-use variables:
+
+```bash
+bundle exec bin/laerad scan --variables-only path/to/file.rb
+bundle exec bin/laerad scan -v path/to/file.rb
+```
+
 Print version:
 
 ```bash
