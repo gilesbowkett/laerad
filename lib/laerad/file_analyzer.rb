@@ -101,16 +101,6 @@ module Laerad
         visit(node.bodystmt)
         pop_scope
 
-      when SyntaxTree::Defs
-        name = node.name.value
-        line = node.location.start_line
-        current_scope.register_method_def(name, line)
-
-        push_scope
-        visit_params(node.params)
-        visit(node.bodystmt)
-        pop_scope
-
       when SyntaxTree::BodyStmt
         visit(node.statements)
         node.rescue_clause&.then { |r| visit(r) }
@@ -161,18 +151,6 @@ module Laerad
         visit(node.arguments) if node.arguments
 
       when SyntaxTree::BlockNode
-        push_scope
-        visit_block_params(node.block_var) if node.block_var
-        visit(node.bodystmt)
-        pop_scope
-
-      when SyntaxTree::BraceBlock
-        push_scope
-        visit_block_params(node.block_var) if node.block_var
-        visit(node.statements)
-        pop_scope
-
-      when SyntaxTree::DoBlock
         push_scope
         visit_block_params(node.block_var) if node.block_var
         visit(node.bodystmt)
@@ -251,10 +229,10 @@ module Laerad
       when SyntaxTree::Ensure
         visit(node.statements)
 
-      when SyntaxTree::Return
+      when SyntaxTree::ReturnNode
         visit(node.arguments) if node.arguments
 
-      when SyntaxTree::Yield
+      when SyntaxTree::YieldNode
         visit(node.arguments) if node.arguments
 
       when SyntaxTree::Args
@@ -277,17 +255,9 @@ module Laerad
       when SyntaxTree::AssocSplat
         visit(node.value)
 
-      when SyntaxTree::SplatNode
-        visit(node.expression)
-
       when SyntaxTree::RangeNode
         visit(node.left) if node.left
         visit(node.right) if node.right
-
-      when SyntaxTree::Ternary
-        visit(node.predicate)
-        visit(node.truthy)
-        visit(node.falsy)
 
       when SyntaxTree::Not
         visit(node.statement)
@@ -340,12 +310,6 @@ module Laerad
 
       when SyntaxTree::VoidStmt
         # empty statement, no-op
-
-      when SyntaxTree::Int, SyntaxTree::Float, SyntaxTree::Rational, SyntaxTree::Imaginary,
-           SyntaxTree::TStringContent, SyntaxTree::SymbolLiteral, SyntaxTree::Kw,
-           SyntaxTree::Const, SyntaxTree::CVar, SyntaxTree::IVar, SyntaxTree::GVar,
-           SyntaxTree::Backtick, SyntaxTree::Comment, SyntaxTree::EmbDoc, SyntaxTree::EndContent
-        # literals and non-local variables, no-op
       end
     end
 
