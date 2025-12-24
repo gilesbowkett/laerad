@@ -11,6 +11,58 @@ bundle exec bin/laerad scan path/to/file.rb
 bundle exec bin/laerad scan path/to/directory
 ```
 
+## How It Works
+
+Laerad uses [SyntaxTree](https://github.com/ruby-syntax-tree/syntax_tree) to
+parse Ruby source files into an abstract syntax tree (AST). It then walks this
+tree, tracking every variable and method definition along with their references.
+
+### Detection
+
+A variable or method is flagged as "single-use" when its total usage count is
+less than 2. The usage count includes both the definition and all references,
+so a variable that is assigned but never read, or a method that is defined but
+never called, each have a count of 1.
+
+### Scoping
+
+Variables are tracked per lexical scope. Each method body, block, or lambda
+creates a new scope. A variable defined inside a block is separate from a
+variable with the same name outside that block.
+
+Methods are tracked at file level. A method defined anywhere in the file can be
+called from anywhere else in the file, so Laerad counts method usage across the
+entire file rather than within individual scopes.
+
+### Dynamic Code
+
+Ruby code that uses metaprogramming constructs like `send`, `define_method`,
+`class_eval`, or `method_missing` can call methods in ways that static analysis
+cannot detect. When Laerad encounters these constructs, it marks the file as
+"dynamic" and skips method-usage checks to avoid false positives.
+
+## Architecture
+
+```
+CLI (Thor)
+ └─> Runner
+      └─> FileAnalyzer (per file)
+           ├─> SyntaxTree.parse
+           ├─> AST visitor
+           ├─> Scope stack (tracks variables/methods)
+           └─> Result (violations)
+```
+
+- **CLI** (`lib/laerad/cli.rb`) - Thor-based command interface with `scan` and
+  `version` commands
+- **Runner** (`lib/laerad/runner.rb`) - Expands directories into file lists
+  and orchestrates analysis
+- **FileAnalyzer** (`lib/laerad/file_analyzer.rb`) - Parses Ruby, walks the
+  AST, maintains a scope stack
+- **Scope** (`lib/laerad/scope.rb`) - Tracks definitions and references with
+  usage counts
+- **Result** (`lib/laerad/result.rb`) - Collects violations and formats output
+
 ### Options
 
 Only check for single-use variables:
