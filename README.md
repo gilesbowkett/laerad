@@ -1,10 +1,10 @@
-# Laerad: Eliminate Single-Use Abstractions
+# Laerad: Eliminate Single-Use Variables
 
-A static analyzer that detects single-use variables and methods in Ruby code.
+A static analyzer that detects single-use variables in Ruby code.
 
 ## Usage
 
-Scan a file or directory for single-use abstractions:
+Scan a file or directory for single-use variables:
 
 ```bash
 bundle exec bin/laerad scan path/to/file.rb
@@ -15,28 +15,17 @@ bundle exec bin/laerad scan path/to/directory
 
 Laerad uses [SyntaxTree](https://github.com/ruby-syntax-tree/syntax_tree) to
 parse Ruby source files into an abstract syntax tree (AST). It then walks this
-tree, tracking every variable and method definition along with their references.
+tree, tracking every variable definition along with its references.
 
 ### Detection
 
-Laerad flags variables and methods that are used only once or not at all.
+Laerad flags variables that are used only once or not at all.
 
 ### Scoping
 
 Variables are tracked per lexical scope. Each method body, block, or lambda
 creates a new scope. A variable defined inside a block is separate from a
 variable with the same name outside that block.
-
-Methods are tracked at file level. A method defined anywhere in the file can be
-called from anywhere else in the file, so Laerad counts method usage across the
-entire file rather than within individual scopes.
-
-### Dynamic Code
-
-Ruby code that uses metaprogramming constructs like `send`, `define_method`,
-`class_eval`, or `method_missing` can call methods in ways that static analysis
-cannot detect. When Laerad encounters these constructs, it marks the file as
-"dynamic" and skips method-usage checks to avoid false positives.
 
 ## Architecture
 
@@ -46,7 +35,7 @@ CLI (Thor)
       └─> FileAnalyzer (per file)
            ├─> SyntaxTree.parse
            ├─> AST visitor
-           ├─> Scope stack (tracks variables/methods)
+           ├─> Scope stack (tracks variables)
            └─> Result (violations)
 ```
 
@@ -61,20 +50,6 @@ CLI (Thor)
 - **Result** (`lib/laerad/result.rb`) - Collects violations and formats output
 
 ### Options
-
-Only check for single-use variables:
-
-```bash
-bundle exec bin/laerad scan --variables-only path/to/file.rb
-bundle exec bin/laerad scan -v path/to/file.rb
-```
-
-Only check for single-use methods:
-
-```bash
-bundle exec bin/laerad scan --methods-only path/to/file.rb
-bundle exec bin/laerad scan -m path/to/file.rb
-```
 
 Print version:
 
@@ -97,24 +72,12 @@ bundle install
 Single-use variables:
   /Users/giles/code/laerad/test/fixtures/unused_variable.rb:2  x (1 use)
 
-Single-use methods:
-  /Users/giles/code/laerad/test/fixtures/unused_variable.rb:1  foo (1 use)
-
 ❯ bundle exec bin/laerad scan /Users/giles/code/laerad/test/fixtures/
 Single-use variables:
   /Users/giles/code/laerad/test/fixtures/multi_use_variable.rb:3  y (1 use)
   /Users/giles/code/laerad/test/fixtures/nested_scopes.rb:4  x (1 use)
   /Users/giles/code/laerad/test/fixtures/nested_scopes.rb:2  x (1 use)
   /Users/giles/code/laerad/test/fixtures/unused_variable.rb:2  x (1 use)
-
-Single-use methods:
-  /Users/giles/code/laerad/test/fixtures/multi_use_method.rb:  times (1 use)
-  /Users/giles/code/laerad/test/fixtures/multi_use_variable.rb:1  foo (1 use)
-  /Users/giles/code/laerad/test/fixtures/nested_scopes.rb:1  outer (1 use)
-  /Users/giles/code/laerad/test/fixtures/nested_scopes.rb:  times (1 use)
-  /Users/giles/code/laerad/test/fixtures/simple_method.rb:5  top (1 use)
-  /Users/giles/code/laerad/test/fixtures/unused_method.rb:1  helper (1 use)
-  /Users/giles/code/laerad/test/fixtures/unused_variable.rb:1  foo (1 use)
 ```
 
 ## Tests
