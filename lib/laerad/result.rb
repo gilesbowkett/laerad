@@ -31,20 +31,27 @@ module Laerad
       new(variable_violations: merged_variable_violations)
     end
 
-    def format_output
+    def format_output(short: false)
       return "" if @variable_violations.empty?
 
-      rows = @variable_violations.map do |v|
-        file_path = v[:file] || @file
-        [file_path, v[:line], v[:name], v[:count]]
+      if short
+        @variable_violations.map do |v|
+          file_path = v[:file] || @file
+          "#{file_path}:#{v[:line]}"
+        end.join("\n")
+      else
+        rows = @variable_violations.map do |v|
+          file_path = v[:file] || @file
+          [file_path, v[:line], v[:name], v[:count]]
+        end
+
+        table = Terminal::Table.new(
+          headings: ["File", "Line", "Variable", "Uses"],
+          rows: rows
+        )
+
+        table.to_s
       end
-
-      table = Terminal::Table.new(
-        headings: ["File", "Line", "Variable", "Uses"],
-        rows: rows
-      )
-
-      table.to_s
     end
   end
 end

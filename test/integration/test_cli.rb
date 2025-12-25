@@ -47,4 +47,20 @@ class TestCLI < Minitest::Test
     assert_includes stdout, "laerad"
     assert_includes stdout, Laerad::VERSION
   end
+
+  def test_short_flag
+    stdout, _stderr, status = run_cli("scan", "--short", fixture_path("unused_variable.rb"))
+
+    assert_equal 1, status.exitstatus
+    assert_includes stdout, "unused_variable.rb:2"
+    refute_includes stdout, "Variable"
+  end
+
+  def test_short_flag_alias
+    stdout, _stderr, status = run_cli("scan", "-s", fixture_path("unused_variable.rb"))
+
+    assert_equal 1, status.exitstatus
+    assert_includes stdout, "unused_variable.rb:2"
+    refute_includes stdout, "Variable"
+  end
 end

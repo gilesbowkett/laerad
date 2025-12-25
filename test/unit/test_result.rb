@@ -48,4 +48,14 @@ class TestResult < Minitest::Test
     assert_includes output, "x"
     assert_includes output, "1"
   end
+
+  def test_format_output_short
+    result = Laerad::Result.new(file: "test.rb")
+    result.add_variable_violation(name: "x", line: 5, count: 1)
+    result.add_variable_violation(name: "y", line: 10, count: 1)
+
+    output = result.format_output(short: true)
+
+    assert_equal "test.rb:5\ntest.rb:10", output
+  end
 end
