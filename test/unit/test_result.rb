@@ -11,14 +11,6 @@ class TestResult < Minitest::Test
     assert_equal({name: "x", line: 5, count: 1}, result.variable_violations.first)
   end
 
-  def test_add_method_violation
-    result = Laerad::Result.new(file: "test.rb")
-    result.add_method_violation(name: "foo", line: 10, count: 1)
-
-    assert_equal 1, result.method_violations.size
-    assert_equal({name: "foo", line: 10, count: 1}, result.method_violations.first)
-  end
-
   def test_violations_returns_true_when_violations_exist
     result = Laerad::Result.new(file: "test.rb")
     refute result.violations?
@@ -32,26 +24,22 @@ class TestResult < Minitest::Test
     result1.add_variable_violation(name: "x", line: 1, count: 1)
 
     result2 = Laerad::Result.new(file: "file2.rb")
-    result2.add_method_violation(name: "foo", line: 5, count: 1)
+    result2.add_variable_violation(name: "y", line: 5, count: 1)
 
     merged = Laerad::Result.merge(result1, result2)
 
-    assert_equal 1, merged.variable_violations.size
-    assert_equal 1, merged.method_violations.size
+    assert_equal 2, merged.variable_violations.size
     assert_equal "file1.rb", merged.variable_violations.first[:file]
-    assert_equal "file2.rb", merged.method_violations.first[:file]
+    assert_equal "file2.rb", merged.variable_violations.last[:file]
   end
 
   def test_format_output
     result = Laerad::Result.new(file: "test.rb")
     result.add_variable_violation(name: "x", line: 5, count: 1)
-    result.add_method_violation(name: "foo", line: 10, count: 1)
 
     output = result.format_output
 
     assert_includes output, "Single-use variables:"
     assert_includes output, "test.rb:5  x (1 use)"
-    assert_includes output, "Single-use methods:"
-    assert_includes output, "test.rb:10  foo (1 use)"
   end
 end

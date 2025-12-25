@@ -4,8 +4,6 @@ require "syntax_tree"
 
 module Laerad
   class FileAnalyzer
-    DYNAMIC_METHODS = %w[send public_send define_method class_eval module_eval instance_eval].freeze
-
     def self.analyze(path, options = {})
       new(path, options).analyze
     end
@@ -33,10 +31,6 @@ module Laerad
       @scope_stack.last
     end
 
-    def file_scope
-      @scope_stack.first
-    end
-
     def push_scope
       @scope_stack.push(Scope.new)
     end
@@ -48,26 +42,13 @@ module Laerad
     end
 
     def finalize_scope(scope)
-      unless @options[:methods_only]
-        scope.single_use_variables.each do |name|
-          line = scope.variable_definition_line(name)
-          @result.add_variable_violation(
-            name: name,
-            line: line,
-            count: scope.variable_count(name)
-          )
-        end
-      end
-
-      unless @options[:variables_only]
-        scope.single_use_methods.each do |name|
-          line = scope.method_definition_line(name)
-          @result.add_method_violation(
-            name: name,
-            line: line,
-            count: scope.method_count(name)
-          )
-        end
+      scope.single_use_variables.each do |name|
+        line = scope.variable_definition_line(name)
+        @result.add_variable_violation(
+          name: name,
+          line: line,
+          count: scope.variable_count(name)
+        )
       end
     end
 
@@ -101,10 +82,6 @@ module Laerad
         visit(node.value)
 
       when SyntaxTree::DefNode
-        name = node.name.value
-        line = node.location.start_line
-        file_scope.register_method_def(name, line)
-
         push_scope
         visit_params(node.params)
         visit(node.bodystmt)
@@ -134,29 +111,13 @@ module Laerad
 
       when SyntaxTree::CallNode
         visit(node.receiver) if node.receiver
-        method_name = extract_method_name(node)
-        if method_name
-          check_dynamic_method(method_name)
-          file_scope.register_method_call(method_name)
-        end
         visit(node.arguments) if node.arguments
 
-      when SyntaxTree::VCall
-        method_name = node.value.value
-        check_dynamic_method(method_name)
-        file_scope.register_method_call(method_name)
-
       when SyntaxTree::Command
-        method_name = node.message.value
-        check_dynamic_method(method_name)
-        file_scope.register_method_call(method_name)
         visit(node.arguments)
 
       when SyntaxTree::CommandCall
         visit(node.receiver) if node.receiver
-        method_name = node.message.value
-        check_dynamic_method(method_name)
-        file_scope.register_method_call(method_name)
         visit(node.arguments) if node.arguments
 
       when SyntaxTree::BlockNode
@@ -396,29 +357,6 @@ module Laerad
       when SyntaxTree::Ident
         node.value.value
       end
-    end
-
-    def extract_method_name(node)
-      case node.message
-      when SyntaxTree::Ident
-        node.message.value
-      when SyntaxTree::Op
-        node.message.value
-      when Symbol
-        node.message.to_s
-      end
-    end
-
-    def check_dynamic_method(name)
-      if DYNAMIC_METHODS.include?(name)
-        mark_all_scopes_dynamic!
-      elsif name == "method_missing"
-        mark_all_scopes_dynamic!
-      end
-    end
-
-    def mark_all_scopes_dynamic!
-      @scope_stack.each(&:mark_dynamic!)
     end
   end
 end
