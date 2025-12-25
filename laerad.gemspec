@@ -19,4 +19,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "syntax_tree", "~> 6.3"
   spec.add_dependency "terminal-table", "< 4.0"
   spec.add_dependency "thor", "~> 1.4"
+
+  spec.add_development_dependency "base64"
+  spec.add_development_dependency "pronto", "~> 0.11"
 end
