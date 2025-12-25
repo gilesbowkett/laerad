@@ -39,12 +39,12 @@ module Laerad
     end
 
     def single_use_variables
-      @variables.select { |_, count| count < 2 }.keys
+      @variables.select { |_, count| count <= 2 }.keys
     end
 
     def single_use_methods
       return [] if dynamic?
-      @methods.select { |_, count| count < 2 }.keys
+      @methods.select { |_, count| count <= 2 }.keys
     end
 
     def variable_definition_line(name)

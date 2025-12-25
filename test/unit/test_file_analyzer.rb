@@ -7,10 +7,10 @@ class TestFileAnalyzer < Minitest::Test
     File.expand_path("../fixtures/#{name}", __dir__)
   end
 
-  def test_simple_variable_usage
-    result = Laerad::FileAnalyzer.analyze(fixture_path("simple_variable.rb"))
+  def test_single_use_variable
+    result = Laerad::FileAnalyzer.analyze(fixture_path("single_use_variable.rb"))
 
-    refute result.variable_violations.any? { |v| v[:name] == "x" }
+    assert result.variable_violations.any? { |v| v[:name] == "x" }
   end
 
   def test_unused_variable
@@ -25,10 +25,10 @@ class TestFileAnalyzer < Minitest::Test
     refute result.variable_violations.any? { |v| v[:name] == "x" }
   end
 
-  def test_simple_method_usage
-    result = Laerad::FileAnalyzer.analyze(fixture_path("simple_method.rb"))
+  def test_single_use_method
+    result = Laerad::FileAnalyzer.analyze(fixture_path("single_use_method.rb"))
 
-    refute result.method_violations.any? { |v| v[:name] == "helper" }
+    assert result.method_violations.any? { |v| v[:name] == "helper" }
   end
 
   def test_unused_method
@@ -64,30 +64,15 @@ class TestFileAnalyzer < Minitest::Test
     assert result.violations?
   end
 
-  def test_parameters_count_as_definition
-    # Create a temporary file to test parameter handling
-    require "tempfile"
-    file = Tempfile.new(["test", ".rb"])
-    file.write("def foo(x)\n  x\nend\n")
-    file.close
-
-    result = Laerad::FileAnalyzer.analyze(file.path)
+  def test_multi_use_parameter
+    result = Laerad::FileAnalyzer.analyze(fixture_path("multi_use_parameter.rb"))
 
     refute result.variable_violations.any? { |v| v[:name] == "x" }
-  ensure
-    file&.unlink
   end
 
-  def test_rescue_binding
-    require "tempfile"
-    file = Tempfile.new(["test", ".rb"])
-    file.write("begin\n  raise\nrescue => e\n  puts e\nend\n")
-    file.close
-
-    result = Laerad::FileAnalyzer.analyze(file.path)
+  def test_multi_use_rescue_binding
+    result = Laerad::FileAnalyzer.analyze(fixture_path("multi_use_rescue_binding.rb"))
 
     refute result.variable_violations.any? { |v| v[:name] == "e" }
-  ensure
-    file&.unlink
   end
 end

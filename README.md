@@ -19,10 +19,7 @@ tree, tracking every variable and method definition along with their references.
 
 ### Detection
 
-A variable or method is flagged as "single-use" when its total usage count is
-less than 2. The usage count includes both the definition and all references,
-so a variable that is assigned but never read, or a method that is defined but
-never called, each have a count of 1.
+Laerad flags variables and methods that are used only once or not at all.
 
 ### Scoping
 

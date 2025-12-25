@@ -19,7 +19,7 @@ class TestCLI < Minitest::Test
   end
 
   def test_scan_file_with_no_violations
-    stdout, _stderr, status = run_cli("scan", fixture_path("simple_variable.rb"))
+    stdout, _stderr, status = run_cli("scan", fixture_path("no_violations.rb"))
 
     assert_equal 0, status.exitstatus
     assert_includes stdout, "No violations found"

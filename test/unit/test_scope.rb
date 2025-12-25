@@ -34,21 +34,25 @@ class TestScope < Minitest::Test
   end
 
   def test_single_use_variables
-    @scope.register_variable_def("used", 1)
-    @scope.register_variable_ref("used")
-    @scope.register_variable_def("unused", 2)
+    @scope.register_variable_def("multi_use", 1)
+    @scope.register_variable_ref("multi_use")
+    @scope.register_variable_ref("multi_use")
+    @scope.register_variable_def("single_use", 2)
+    @scope.register_variable_ref("single_use")
 
-    assert_includes @scope.single_use_variables, "unused"
-    refute_includes @scope.single_use_variables, "used"
+    assert_includes @scope.single_use_variables, "single_use"
+    refute_includes @scope.single_use_variables, "multi_use"
   end
 
   def test_single_use_methods
-    @scope.register_method_def("used", 1)
-    @scope.register_method_call("used")
-    @scope.register_method_def("unused", 2)
+    @scope.register_method_def("multi_use", 1)
+    @scope.register_method_call("multi_use")
+    @scope.register_method_call("multi_use")
+    @scope.register_method_def("single_use", 2)
+    @scope.register_method_call("single_use")
 
-    assert_includes @scope.single_use_methods, "unused"
-    refute_includes @scope.single_use_methods, "used"
+    assert_includes @scope.single_use_methods, "single_use"
+    refute_includes @scope.single_use_methods, "multi_use"
   end
 
   def test_single_use_methods_skipped_when_dynamic
