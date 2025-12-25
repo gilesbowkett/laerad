@@ -39,7 +39,13 @@ class TestResult < Minitest::Test
 
     output = result.format_output
 
-    assert_includes output, "Single-use variables:"
-    assert_includes output, "test.rb:5  x (1 use)"
+    assert_includes output, "File"
+    assert_includes output, "Line"
+    assert_includes output, "Variable"
+    assert_includes output, "Uses"
+    assert_includes output, "test.rb"
+    assert_includes output, "5"
+    assert_includes output, "x"
+    assert_includes output, "1"
   end
 end

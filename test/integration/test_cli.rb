@@ -29,7 +29,7 @@ class TestCLI < Minitest::Test
     stdout, _stderr, status = run_cli("scan", fixture_path("unused_variable.rb"))
 
     assert_equal 1, status.exitstatus
-    assert_includes stdout, "Single-use variables:"
+    assert_includes stdout, "Variable"
     assert_includes stdout, "x"
   end
 

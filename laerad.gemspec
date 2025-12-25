@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.name = "laerad"
   spec.version = Laerad::VERSION
   spec.authors = ["Giles Bowkett"]
-  spec.summary = "Static analyzer to detect single-use variables and methods in Ruby code"
+  spec.summary = "Static analyzer to detect single-use variables in Ruby code"
   spec.homepage = "https://github.com/gilesbowkett/laerad"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.4.7"
@@ -17,5 +17,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "syntax_tree"
+  spec.add_dependency "terminal-table"
   spec.add_dependency "thor"
 end
