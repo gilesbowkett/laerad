@@ -63,4 +63,11 @@ class TestCLI < Minitest::Test
     assert_includes stdout, "unused_variable.rb:2"
     refute_includes stdout, "Variable"
   end
+
+  def test_short_flag_silent_on_success
+    stdout, _stderr, status = run_cli("scan", "--short", fixture_path("no_violations.rb"))
+
+    assert_equal 0, status.exitstatus
+    assert_empty stdout.strip
+  end
 end

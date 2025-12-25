@@ -17,7 +17,7 @@ module Laerad
         puts result.format_output(short: options[:short])
         exit 1
       else
-        puts "No violations found."
+        puts "No violations found." unless options[:short]
         exit 0
       end
     end
