@@ -9,11 +9,12 @@ module Laerad
     end
 
     desc "scan PATH", "Scan Ruby files for single-use variables"
+    method_option :short, type: :boolean, aliases: "-s", desc: "Output only file:line"
     def scan(path = ".")
       result = Runner.new(path, options).run
 
       if result.violations?
-        puts result.format_output
+        puts result.format_output(short: options[:short])
         exit 1
       else
         puts "No violations found."

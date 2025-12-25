@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "terminal-table"
+
 module Laerad
   class Result
     attr_reader :file, :variable_violations
@@ -29,19 +31,27 @@ module Laerad
       new(variable_violations: merged_variable_violations)
     end
 
-    def format_output
-      output = []
+    def format_output(short: false)
+      return "" if @variable_violations.empty?
 
-      if @variable_violations.any?
-        output << "Single-use variables:"
-        @variable_violations.each do |v|
+      if short
+        @variable_violations.map do |v|
           file_path = v[:file] || @file
-          output << "  #{file_path}:#{v[:line]}  #{v[:name]} (#{v[:count]} use)"
+          "#{file_path}:#{v[:line]}"
+        end.join("\n")
+      else
+        rows = @variable_violations.map do |v|
+          file_path = v[:file] || @file
+          [file_path, v[:line], v[:name], v[:count]]
         end
-        output << ""
-      end
 
-      output.join("\n")
+        table = Terminal::Table.new(
+          headings: ["File", "Line", "Variable", "Uses"],
+          rows: rows
+        )
+
+        table.to_s
+      end
     end
   end
 end
