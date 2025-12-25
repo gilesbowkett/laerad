@@ -86,18 +86,6 @@ Single-use variables:
 bundle exec rake test
 ```
 
-Run a single test file:
-
-```bash
-bundle exec ruby -Ilib:test test/unit/test_file_analyzer.rb
-```
-
-Run a single test method:
-
-```bash
-bundle exec ruby -Ilib:test test/unit/test_file_analyzer.rb -n test_unused_variable
-```
-
 ### What's in a name?
 
 This gem combines Thor with SyntaxTree. Combining Thor with trees made me think
