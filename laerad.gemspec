@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.executables = ["laerad"]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "syntax_tree"
-  spec.add_dependency "terminal-table"
-  spec.add_dependency "thor"
+  spec.add_dependency "syntax_tree", "~> 6.3"
+  spec.add_dependency "terminal-table", "< 4.0"
+  spec.add_dependency "thor", "~> 1.4"
 end
