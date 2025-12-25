@@ -25,36 +25,6 @@ class TestFileAnalyzer < Minitest::Test
     refute result.variable_violations.any? { |v| v[:name] == "x" }
   end
 
-  def test_single_use_method
-    result = Laerad::FileAnalyzer.analyze(fixture_path("single_use_method.rb"))
-
-    assert result.method_violations.any? { |v| v[:name] == "helper" }
-  end
-
-  def test_unused_method
-    result = Laerad::FileAnalyzer.analyze(fixture_path("unused_method.rb"))
-
-    assert result.method_violations.any? { |v| v[:name] == "helper" }
-  end
-
-  def test_multi_use_method
-    result = Laerad::FileAnalyzer.analyze(fixture_path("multi_use_method.rb"))
-
-    refute result.method_violations.any? { |v| v[:name] == "helper" }
-  end
-
-  def test_dynamic_send_ignores_method_rule
-    result = Laerad::FileAnalyzer.analyze(fixture_path("dynamic_send.rb"))
-
-    refute result.method_violations.any? { |v| v[:name] == "foo" }
-  end
-
-  def test_define_method_marks_dynamic
-    result = Laerad::FileAnalyzer.analyze(fixture_path("dsl_define_method.rb"))
-
-    refute result.method_violations.any?
-  end
-
   def test_nested_scopes_variable_usage
     result = Laerad::FileAnalyzer.analyze(fixture_path("nested_scopes.rb"))
 

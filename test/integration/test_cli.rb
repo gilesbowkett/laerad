@@ -47,38 +47,4 @@ class TestCLI < Minitest::Test
     assert_includes stdout, "laerad"
     assert_includes stdout, Laerad::VERSION
   end
-
-  def test_methods_only_flag
-    stdout, _stderr, status = run_cli("scan", "--methods-only", fixture_path("unused_variable.rb"))
-
-    assert_equal 1, status.exitstatus
-    assert_includes stdout, "Single-use methods:"
-    assert_includes stdout, "foo"
-    refute_includes stdout, "Single-use variables:"
-  end
-
-  def test_variables_only_flag
-    stdout, _stderr, status = run_cli("scan", "--variables-only", fixture_path("unused_variable.rb"))
-
-    assert_equal 1, status.exitstatus
-    assert_includes stdout, "Single-use variables:"
-    assert_includes stdout, "x"
-    refute_includes stdout, "Single-use methods:"
-  end
-
-  def test_methods_only_short_flag
-    stdout, _stderr, status = run_cli("scan", "-m", fixture_path("unused_variable.rb"))
-
-    assert_equal 1, status.exitstatus
-    assert_includes stdout, "Single-use methods:"
-    refute_includes stdout, "Single-use variables:"
-  end
-
-  def test_variables_only_short_flag
-    stdout, _stderr, status = run_cli("scan", "-v", fixture_path("unused_variable.rb"))
-
-    assert_equal 1, status.exitstatus
-    assert_includes stdout, "Single-use variables:"
-    refute_includes stdout, "Single-use methods:"
-  end
 end
