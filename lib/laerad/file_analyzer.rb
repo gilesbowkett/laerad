@@ -41,6 +41,10 @@ module Laerad
       scope
     end
 
+    def find_defining_scope(name)
+      @scope_stack.reverse.find { |s| s.variable_defined?(name) }
+    end
+
     def finalize_scope(scope)
       scope.single_use_variables.each do |name|
         line = scope.variable_definition_line(name)
@@ -71,7 +75,10 @@ module Laerad
 
       when SyntaxTree::VarRef
         name = extract_var_name(node)
-        current_scope.register_variable_ref(name) if name
+        if name
+          scope = find_defining_scope(name) || current_scope
+          scope.register_variable_ref(name)
+        end
 
       when SyntaxTree::Assign
         visit(node.target)
