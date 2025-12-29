@@ -45,4 +45,22 @@ class TestFileAnalyzer < Minitest::Test
 
     refute result.variable_violations.any? { |v| v[:name] == "e" }
   end
+
+  def test_block_closure_references_outer_variable
+    result = Laerad::FileAnalyzer.analyze(fixture_path("block_closure.rb"))
+
+    refute result.variable_violations.any? { |v| v[:name] == "mapping" }
+  end
+
+  def test_block_parameter_shadows_outer_variable
+    result = Laerad::FileAnalyzer.analyze(fixture_path("block_shadowing.rb"))
+
+    refute result.variable_violations.any? { |v| v[:name] == "x" }
+  end
+
+  def test_nested_block_references_outer_variable
+    result = Laerad::FileAnalyzer.analyze(fixture_path("nested_block_closure.rb"))
+
+    refute result.variable_violations.any? { |v| v[:name] == "total" }
+  end
 end
