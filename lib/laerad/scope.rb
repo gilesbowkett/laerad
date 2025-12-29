@@ -29,5 +29,9 @@ module Laerad
     def variable_count(name)
       @variables[name]
     end
+
+    def variable_defined?(name)
+      @variable_def_lines.key?(name)
+    end
   end
 end
