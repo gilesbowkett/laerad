@@ -85,7 +85,12 @@ module Laerad
         visit(node.value)
 
       when SyntaxTree::OpAssign
-        visit(node.target)
+        name = extract_var_name(node.target)
+        if name && (defining_scope = find_defining_scope(name))
+          defining_scope.register_variable_ref(name)
+        else
+          visit(node.target)
+        end
         visit(node.value)
 
       when SyntaxTree::DefNode

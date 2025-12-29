@@ -1,5 +1,6 @@
 def process
   x = 1
-  [1, 2].each { |x| puts x }
-  x
+  y = x + x
+  [1, 2].each { |x| puts x + x }
+  y + x
 end
