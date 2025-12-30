@@ -345,7 +345,7 @@ module Laerad
         param.value
       when SyntaxTree::RestParam
         param.name&.value
-      when SyntaxTree::KeywordRestParam
+      when SyntaxTree::KwRestParam
         param.name&.value
       when SyntaxTree::BlockArg
         param.name&.value
