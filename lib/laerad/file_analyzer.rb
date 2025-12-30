@@ -85,9 +85,13 @@ module Laerad
         visit(node.value)
 
       when SyntaxTree::OpAssign
-        name = extract_var_name(node.target)
-        if name && (defining_scope = find_defining_scope(name))
-          defining_scope.register_variable_ref(name)
+        if node.target.is_a?(SyntaxTree::VarField) && node.target.value.is_a?(SyntaxTree::Ident)
+          name = node.target.value.value
+          if (defining_scope = find_defining_scope(name))
+            defining_scope.register_variable_ref(name)
+          else
+            visit(node.target)
+          end
         else
           visit(node.target)
         end
@@ -345,7 +349,7 @@ module Laerad
         param.value
       when SyntaxTree::RestParam
         param.name&.value
-      when SyntaxTree::KeywordRestParam
+      when SyntaxTree::KwRestParam
         param.name&.value
       when SyntaxTree::BlockArg
         param.name&.value
@@ -365,10 +369,7 @@ module Laerad
     end
 
     def extract_var_name(node)
-      case node.value
-      when SyntaxTree::Ident
-        node.value.value
-      end
+      node.value.value if node.value.is_a?(SyntaxTree::Ident)
     end
   end
 end
