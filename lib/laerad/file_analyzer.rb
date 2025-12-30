@@ -85,9 +85,13 @@ module Laerad
         visit(node.value)
 
       when SyntaxTree::OpAssign
-        name = extract_var_name(node.target)
-        if name && (defining_scope = find_defining_scope(name))
-          defining_scope.register_variable_ref(name)
+        if node.target.is_a?(SyntaxTree::VarField) && node.target.value.is_a?(SyntaxTree::Ident)
+          name = node.target.value.value
+          if defining_scope = find_defining_scope(name)
+            defining_scope.register_variable_ref(name)
+          else
+            visit(node.target)
+          end
         else
           visit(node.target)
         end
@@ -364,19 +368,8 @@ module Laerad
       end
     end
 
-    def extractable(node)
-      ![
-        SyntaxTree::ARefField,
-        SyntaxTree::Field,                                                                                                                   
-        SyntaxTree::ConstPathField,
-        SyntaxTree::TopConstField                                                                                                       
-      ].any?{ |klass| node.class == klass }
-    end
-
     def extract_var_name(node)
-      if extractable(node)
-        node.value.value if node.value.is_a?(SyntaxTree::Ident)
-      end
+      node.value.value if node.value.is_a?(SyntaxTree::Ident)
     end
   end
 end

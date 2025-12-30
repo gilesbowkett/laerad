@@ -41,7 +41,7 @@ class TestSyntaxTreeMethods < Minitest::Test
     errors = []
 
     # Methods to exclude (polymorphic by design)
-    excluded_methods = ["visit"]
+    excluded_methods = %w(visit visit_params)
 
     ruby_files.each do |file|
       ast = SyntaxTree.parse(File.read(file))
