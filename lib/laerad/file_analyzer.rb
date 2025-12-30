@@ -364,10 +364,18 @@ module Laerad
       end
     end
 
+    def extractable(node)
+      ![
+        SyntaxTree::ARefField,
+        SyntaxTree::Field,                                                                                                                   
+        SyntaxTree::ConstPathField,
+        SyntaxTree::TopConstField                                                                                                       
+      ].any?{ |klass| node.class == klass }
+    end
+
     def extract_var_name(node)
-      case node.value
-      when SyntaxTree::Ident
-        node.value.value
+      if extractable(node)
+        node.value.value if node.value.is_a?(SyntaxTree::Ident)
       end
     end
   end
