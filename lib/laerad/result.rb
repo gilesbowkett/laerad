@@ -46,7 +46,7 @@ module Laerad
         end
 
         table = Terminal::Table.new(
-          headings: ["File", "Line", "Variable", "Uses"],
+          headings: ["File", "Line", "Variable", "Appearances"],
           rows: rows
         )
 

@@ -42,7 +42,7 @@ class TestResult < Minitest::Test
     assert_includes output, "File"
     assert_includes output, "Line"
     assert_includes output, "Variable"
-    assert_includes output, "Uses"
+    assert_includes output, "Appearances"
     assert_includes output, "test.rb"
     assert_includes output, "5"
     assert_includes output, "x"
