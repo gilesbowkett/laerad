@@ -34,25 +34,26 @@ class TestSyntaxTreeMethods < Minitest::Test
     assert errors.empty?, errors.join("\n")
   end
 
-  def test_methods_called_on_parameters_exist_for_all_call_site_types
+  def test_helper_methods_handle_all_call_site_types
     lib_path = File.expand_path("../../lib", __dir__)
     ruby_files = Dir.glob("#{lib_path}/**/*.rb")
 
     errors = []
 
+    # Methods to exclude (polymorphic by design)
+    excluded_methods = ["visit"]
+
     ruby_files.each do |file|
       ast = SyntaxTree.parse(File.read(file))
 
-      # Find method definitions and what methods they call on their parameters
       method_param_calls = find_method_param_calls(ast)
+      method_param_calls.reject! { |name, _| excluded_methods.include?(name) }
 
-      # Find call sites within case/when branches and determine argument types
       find_case_statements(ast) do |case_node, case_var_name|
         each_when_branch(case_node) do |when_node, types|
           find_method_calls_with_args(when_node.statements, case_var_name) do |method_name, arg_expr|
             next unless method_param_calls[method_name]
 
-            # Determine what types the argument could be
             arg_types = infer_argument_types(arg_expr, case_var_name, types)
 
             arg_types.each do |arg_type|
