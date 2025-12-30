@@ -16,16 +16,14 @@ class TestSyntaxTreeMethods < Minitest::Test
           methods_called = find_method_calls_on(when_node.statements, case_var_name)
 
           types.each do |type_name|
-            begin
-              klass = SyntaxTree.const_get(type_name)
-              methods_called.each do |method_name|
-                unless klass.instance_methods.include?(method_name.to_sym)
-                  errors << "#{file}: SyntaxTree::#{type_name}##{method_name} does not exist"
-                end
+            klass = SyntaxTree.const_get(type_name)
+            methods_called.each do |method_name|
+              unless klass.instance_methods.include?(method_name.to_sym)
+                errors << "#{file}: SyntaxTree::#{type_name}##{method_name} does not exist"
               end
-            rescue NameError
-              # Handled by test_syntax_tree_constants
             end
+          rescue NameError
+            # Handled by test_syntax_tree_constants
           end
         end
       end
@@ -41,7 +39,7 @@ class TestSyntaxTreeMethods < Minitest::Test
     errors = []
 
     # Methods to exclude (polymorphic by design)
-    excluded_methods = %w(visit visit_params)
+    excluded_methods = %w[visit visit_params]
 
     ruby_files.each do |file|
       ast = SyntaxTree.parse(File.read(file))
@@ -58,14 +56,12 @@ class TestSyntaxTreeMethods < Minitest::Test
 
             arg_types.each do |arg_type|
               method_param_calls[method_name].each do |called_method|
-                begin
-                  klass = SyntaxTree.const_get(arg_type)
-                  unless klass.instance_methods.include?(called_method.to_sym)
-                    errors << "#{file}: #{method_name} calls .#{called_method} on param, but SyntaxTree::#{arg_type} (from call site) doesn't have it"
-                  end
-                rescue NameError
-                  # Skip non-SyntaxTree types
+                klass = SyntaxTree.const_get(arg_type)
+                unless klass.instance_methods.include?(called_method.to_sym)
+                  errors << "#{file}: #{method_name} calls .#{called_method} on param, but SyntaxTree::#{arg_type} (from call site) doesn't have it"
                 end
+              rescue NameError
+                # Skip non-SyntaxTree types
               end
             end
           end
@@ -87,14 +83,12 @@ class TestSyntaxTreeMethods < Minitest::Test
       find_case_with_method_call(ast) do |case_node, var_name, method_name|
         types = collect_all_when_types(case_node)
         types.each do |type_name|
-          begin
-            klass = SyntaxTree.const_get(type_name)
-            unless klass.instance_methods.include?(method_name.to_sym)
-              errors << "#{file}: case #{var_name}.#{method_name} - SyntaxTree::#{type_name}##{method_name} does not exist"
-            end
-          rescue NameError
-            # Handled by test_syntax_tree_constants
+          klass = SyntaxTree.const_get(type_name)
+          unless klass.instance_methods.include?(method_name.to_sym)
+            errors << "#{file}: case #{var_name}.#{method_name} - SyntaxTree::#{type_name}##{method_name} does not exist"
           end
+        rescue NameError
+          # Handled by test_syntax_tree_constants
         end
       end
     end
@@ -148,9 +142,9 @@ class TestSyntaxTreeMethods < Minitest::Test
     parts.each do |arg|
       if arg.is_a?(SyntaxTree::ConstPathRef)
         if arg.parent.is_a?(SyntaxTree::VarRef) &&
-           arg.parent.value.is_a?(SyntaxTree::Const) &&
-           arg.parent.value.value == "SyntaxTree" &&
-           arg.constant.is_a?(SyntaxTree::Const)
+            arg.parent.value.is_a?(SyntaxTree::Const) &&
+            arg.parent.value.value == "SyntaxTree" &&
+            arg.constant.is_a?(SyntaxTree::Const)
           types << arg.constant.value
         end
       end

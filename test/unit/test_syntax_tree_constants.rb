@@ -14,12 +14,10 @@ class TestSyntaxTreeConstants < Minitest::Test
     assert constants.any?, "Should find at least one SyntaxTree constant reference"
 
     constants.each do |const_name|
-      begin
-        SyntaxTree.const_get(const_name)
-        pass
-      rescue NameError
-        flunk "SyntaxTree::#{const_name} does not exist"
-      end
+      SyntaxTree.const_get(const_name)
+      pass
+    rescue NameError
+      flunk "SyntaxTree::#{const_name} does not exist"
     end
   end
 end

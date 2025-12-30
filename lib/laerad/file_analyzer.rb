@@ -87,7 +87,7 @@ module Laerad
       when SyntaxTree::OpAssign
         if node.target.is_a?(SyntaxTree::VarField) && node.target.value.is_a?(SyntaxTree::Ident)
           name = node.target.value.value
-          if defining_scope = find_defining_scope(name)
+          if (defining_scope = find_defining_scope(name))
             defining_scope.register_variable_ref(name)
           else
             visit(node.target)
