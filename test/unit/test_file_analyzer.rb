@@ -63,4 +63,10 @@ class TestFileAnalyzer < Minitest::Test
 
     refute result.variable_violations.any? { |v| v[:name] == "total" }
   end
+
+  def test_method_chain_counts_base_variable
+    result = Laerad::FileAnalyzer.analyze(fixture_path("method_chain.rb"))
+
+    refute result.variable_violations.any? { |v| v[:name] == "user" }
+  end
 end

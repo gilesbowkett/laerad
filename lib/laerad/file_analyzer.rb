@@ -80,6 +80,12 @@ module Laerad
           scope.register_variable_ref(name)
         end
 
+      when SyntaxTree::VCall
+        name = extract_var_name(node)
+        if name && (scope = find_defining_scope(name))
+          scope.register_variable_ref(name)
+        end
+
       when SyntaxTree::Assign
         visit(node.target)
         visit(node.value)
