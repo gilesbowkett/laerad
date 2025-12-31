@@ -400,28 +400,28 @@ module Laerad
     end
 
     def contains_yield?(node)
-      return false unless node
-
-      case node
-      when SyntaxTree::YieldNode
-        true
-      when SyntaxTree::DefNode
-        false
-      else
-        node.child_nodes.any? { |child| contains_yield?(child) } if node.respond_to?(:child_nodes)
+      if node
+        case node
+        when SyntaxTree::YieldNode
+          true
+        when SyntaxTree::DefNode
+          false
+        else
+          node.child_nodes.any? { |child| contains_yield?(child) } if node.respond_to?(:child_nodes)
+        end
       end
     end
 
     def contains_zsuper?(node)
-      return false unless node
-
-      case node
-      when SyntaxTree::ZSuper
-        true
-      when SyntaxTree::DefNode
-        false
-      else
-        node.child_nodes.any? { |child| contains_zsuper?(child) } if node.respond_to?(:child_nodes)
+      if node
+        case node
+        when SyntaxTree::ZSuper
+          true
+        when SyntaxTree::DefNode
+          false
+        else
+          node.child_nodes.any? { |child| contains_zsuper?(child) } if node.respond_to?(:child_nodes)
+        end
       end
     end
   end
