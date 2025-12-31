@@ -2,11 +2,13 @@
 
 module Laerad
   class Scope
-    attr_reader :variables, :variable_def_lines
+    attr_reader :variables, :variable_def_lines, :exempt_variables, :param_names
 
     def initialize
       @variables = Hash.new(0)
       @variable_def_lines = Hash.new { |h, k| h[k] = [] }
+      @exempt_variables = Set.new
+      @param_names = Set.new
     end
 
     def register_variable_def(name, line)

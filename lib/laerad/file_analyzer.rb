@@ -47,6 +47,9 @@ module Laerad
 
     def finalize_scope(scope)
       scope.single_use_variables.each do |name|
+        next if name.start_with?("_")
+        next if scope.exempt_variables.include?(name)
+
         line = scope.variable_definition_line(name)
         @result.add_variable_violation(
           name: name,
@@ -107,6 +110,12 @@ module Laerad
         push_scope
         visit_params(node.params)
         visit(node.bodystmt)
+        if (block_name = extract_block_param_name(node.params)) && contains_yield?(node.bodystmt)
+          current_scope.exempt_variables.add(block_name)
+        end
+        if contains_zsuper?(node.bodystmt)
+          current_scope.param_names.each { |name| current_scope.exempt_variables.add(name) }
+        end
         pop_scope
 
       when SyntaxTree::BodyStmt
@@ -229,6 +238,9 @@ module Laerad
 
       when SyntaxTree::Args
         node.parts.each { |part| visit(part) }
+
+      when SyntaxTree::ArgBlock
+        visit(node.value)
 
       when SyntaxTree::ArgParen
         visit(node.arguments)
@@ -353,6 +365,8 @@ module Laerad
       name = case param
       when SyntaxTree::Ident
         param.value
+      when SyntaxTree::Label
+        param.value.chomp(":")
       when SyntaxTree::RestParam
         param.name&.value
       when SyntaxTree::KwRestParam
@@ -365,6 +379,7 @@ module Laerad
 
       if name
         current_scope.register_variable_def(name, param.location.start_line)
+        current_scope.param_names.add(name)
       end
     end
 
@@ -376,6 +391,38 @@ module Laerad
 
     def extract_var_name(node)
       node.value.value if node.value.is_a?(SyntaxTree::Ident)
+    end
+
+    def extract_block_param_name(params)
+      params = params.contents if params.is_a?(SyntaxTree::Paren)
+      return unless params.is_a?(SyntaxTree::Params)
+      params.block&.name&.value
+    end
+
+    def contains_yield?(node)
+      return false unless node
+
+      case node
+      when SyntaxTree::YieldNode
+        true
+      when SyntaxTree::DefNode
+        false
+      else
+        node.child_nodes.any? { |child| contains_yield?(child) } if node.respond_to?(:child_nodes)
+      end
+    end
+
+    def contains_zsuper?(node)
+      return false unless node
+
+      case node
+      when SyntaxTree::ZSuper
+        true
+      when SyntaxTree::DefNode
+        false
+      else
+        node.child_nodes.any? { |child| contains_zsuper?(child) } if node.respond_to?(:child_nodes)
+      end
     end
   end
 end

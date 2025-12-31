@@ -69,4 +69,55 @@ class TestFileAnalyzer < Minitest::Test
 
     refute result.variable_violations.any? { |v| v[:name] == "user" }
   end
+
+  def test_underscore_prefixed_variables_ignored
+    result = Laerad::FileAnalyzer.analyze(fixture_path("underscore_prefix.rb"))
+
+    refute result.variable_violations.any? { |v| v[:name] == "_unused" }
+    refute result.variable_violations.any? { |v| v[:name] == "_first" }
+  end
+
+  def test_numbered_block_params_ignored
+    result = Laerad::FileAnalyzer.analyze(fixture_path("numbered_params.rb"))
+
+    refute result.variable_violations.any? { |v| v[:name] == "_1" }
+  end
+
+  def test_keyword_args_used
+    result = Laerad::FileAnalyzer.analyze(fixture_path("keyword_args.rb"))
+
+    refute result.variable_violations.any? { |v| v[:name] == "foo" }
+    assert result.variable_violations.any? { |v| v[:name] == "bar" }
+  end
+
+  def test_block_passthrough
+    result = Laerad::FileAnalyzer.analyze(fixture_path("block_passthrough.rb"))
+
+    passthrough = result.variable_violations.find { |v| v[:name] == "block" && v[:line] == 1 }
+    unused = result.variable_violations.find { |v| v[:name] == "block" && v[:line] == 5 }
+
+    assert_equal 2, passthrough[:count], "passthrough block should have 2 appearances"
+    assert_equal 1, unused[:count], "unused block should have 1 appearance"
+  end
+
+  def test_yield_implicit_block_use
+    result = Laerad::FileAnalyzer.analyze(fixture_path("yield_block.rb"))
+
+    refute result.variable_violations.any? { |v| v[:name] == "block" && v[:line] == 1 }
+    refute result.variable_violations.any? { |v| v[:name] == "block" && v[:line] == 5 }
+    assert result.variable_violations.any? { |v| v[:name] == "block" && v[:line] == 10 }
+  end
+
+  def test_super_implicit_params
+    result = Laerad::FileAnalyzer.analyze(fixture_path("super_implicit.rb"))
+
+    # Child uses bare super - all params implicitly used, should not be flagged
+    refute result.variable_violations.any? { |v| v[:name] == "a" && v[:line] == 7 }
+    refute result.variable_violations.any? { |v| v[:name] == "b" && v[:line] == 7 }
+    refute result.variable_violations.any? { |v| v[:name] == "c" && v[:line] == 7 }
+
+    # ExplicitChild uses super(a) - b and c are genuinely unused
+    assert result.variable_violations.any? { |v| v[:name] == "b" && v[:line] == 13 }
+    assert result.variable_violations.any? { |v| v[:name] == "c" && v[:line] == 13 }
+  end
 end
