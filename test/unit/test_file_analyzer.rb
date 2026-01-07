@@ -120,4 +120,11 @@ class TestFileAnalyzer < Minitest::Test
     assert result.variable_violations.any? { |v| v[:name] == "b" && v[:line] == 13 }
     assert result.variable_violations.any? { |v| v[:name] == "c" && v[:line] == 13 }
   end
+
+  def test_field_assignment_counts_receiver
+    result = Laerad::FileAnalyzer.analyze(fixture_path("object_as_argument.rb"))
+
+    # obj_as_argument.field = value should count as a reference to obj_as_argument
+    refute result.variable_violations.any? { |v| v[:name] == "obj_as_argument" }
+  end
 end
