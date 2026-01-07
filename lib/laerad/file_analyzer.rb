@@ -144,6 +144,9 @@ module Laerad
         visit(node.receiver) if node.receiver
         visit(node.arguments) if node.arguments
 
+      when SyntaxTree::Field
+        visit(node.parent) if node.parent
+
       when SyntaxTree::Command
         visit(node.arguments)
 
